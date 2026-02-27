@@ -1,0 +1,257 @@
+% !TeX program = xelatex
+
+% Явное указание компилятора для редакторов
+\documentclass[14pt, a4paper]{extarticle}
+
+\usepackage{fontspec}
+\usepackage{polyglossia}
+\setdefaultlanguage{russian}
+\setotherlanguage{english}
+
+% Основной шрифт для всего документа
+\setmainfont{Times New Roman}
+% Явное указание кириллического шрифта
+\newfontfamily\cyrillicfont{Times New Roman}
+% Шрифт для моноширинного текста (листинги, код) с поддержкой кириллицы
+\newfontfamily\cyrillicfonttt{Times New Roman} % Если хотите везде Times New Roman
+
+% Пакеты для оформления и содержания 
+\usepackage{geometry}
+\usepackage{titlesec}
+\usepackage{setspace}
+\usepackage{graphicx}
+\usepackage{indentfirst}
+\usepackage{enumitem}
+\usepackage{float}
+\usepackage{listings}
+\usepackage{caption}
+\usepackage{hyperref}
+\usepackage{ragged2e}
+\usepackage{needspace}
+
+\usepackage{needspace}
+\usepackage{etoolbox}
+
+% Настройки для предотвращения плохих разрывов листингов
+\BeforeBeginEnvironment{lstlisting}{%
+  \par
+  \needspace{7\baselineskip}% Минимум 7 строк должно остаться
+  \nopagebreak[4]% Максимальный приоритет запрета разрыва
+  \penalty -500\relax% Поощряем разрыв ДО листинга если нужно
+}
+
+\AfterEndEnvironment{lstlisting}{%
+  \par
+  \nopagebreak[3]% Средний приоритет запрета разрыва после
+  \penalty 3000\relax% Штрафуем разрыв сразу после рамки
+}
+
+% Глобальные настройки для борьбы с "висячими" строками
+\clubpenalty=10000    % Штраф за одиночную строку в начале страницы
+\widowpenalty=10000   % Штраф за одиночную строку в конце страницы
+\brokenpenalty=10000  % Штраф за разбитую строку с переносом
+
+% Улучшаем настройки листингов
+\lstset{
+    language=C++,
+    basicstyle=\ttfamily\footnotesize,
+    numbers=left,
+    numberstyle=\tiny,
+    frame=single,
+    breaklines=true,
+    breakatwhitespace=true,
+    showspaces=false,
+    showstringspaces=false,
+    captionpos=b,
+    inputencoding=utf8,
+    extendedchars=true,
+    keepspaces=true,
+    % Увеличиваем вертикальные отступы
+    aboveskip=10pt,
+    belowskip=10pt,
+    % Индикаторы переноса
+    prebreak=\mbox{\quad$\hookrightarrow$},
+    postbreak=\mbox{$\hookleftarrow$\space},
+    % Улучшаем перенос длинных строк
+    tabsize=4,
+    columns=flexible,
+}
+
+
+% Настройки по ГОСТ 
+\geometry{left=30mm, right=15mm, top=20mm, bottom=20mm}
+\onehalfspacing
+\parindent=1.25cm
+\pagestyle{plain} % Добавляем нумерацию страниц внизу по центру (по ГОСТ)
+
+% Настройка стилей заголовков по ГОСТ 
+\titleformat{\section}{\normalfont\bfseries\centering}{\thesection}{1em}{}
+\titleformat{\subsection}{\normalfont\bfseries\raggedright}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}{\normalfont\bfseries\raggedright}{\thesubsubsection}{1em}{}
+
+
+% Настройка нумерации листингов 
+\renewcommand{\lstlistingname}{Листинг}
+\renewcommand{\lstlistlistingname}{Список листингов}
+
+% Настройка списков 
+\setlist[itemize]{leftmargin=*}
+\setlist[enumerate]{leftmargin=*}
+
+% Выравнивание текста по ширине 
+\justifying
+
+\begin{document}  
+
+
+\subsection*{Цель работы:}
+Изучить разработку и реализацию программ линейной структуры, освоить базовые операции ввода-вывода и простые вычисления.
+
+\subsection*{Задание:}
+\begin{enumerate}[label=\arabic*)]
+    \item Разработать консольное приложение для подсчета площади квадрата. Пользователь вводит сторону и получает сообщение о полученной площади.
+    \item Разработать консольное приложение для подсчета объема прямоугольного параллелепипеда. Пользователь вводит три стороны и получает сообщение о полученном объеме.
+    \item Разработать консольное приложение для подсчета пройденного расстояния. Пользователь вводит скорость (в км/час) и время (в часах) и получает сообщение о пройденном расстоянии (в км).
+\end{enumerate}
+
+\subsection*{Ход работы:}
+
+\subsubsection*{Теоретическая информация}
+Линейные программы выполняют последовательность операций без ветвлений и циклов. В данной работе реализованы простые вычисления с использованием функций для безопасного ввода данных. Основное внимание уделяется обработке пользовательского ввода, преобразованию типов и базовым арифметическим операциям.
+
+\subsubsection*{Подзадание №1:}
+Программа вычисляет площадь квадрата по введенной стороне. Используется функция для чтения и проверки целого числа. При вводе отрицательного или некорректного значения программа выводит сообщение об ошибке.
+Код программы представлен ниже (Листинг \ref{lst:lab2_point1}, \ref{lst:lab2_point_all_h} и \ref{lst:lab2_point_all_cpp}, Рисунок \ref{fig:lab2_image1}).
+
+\begin{lstlisting}[caption={Код программы для задания 1}, label=lst:lab2_point1]
+#include "point_all.h"
+
+int main() {
+    int side;
+
+    if (!read_int("Введите сторону квадрата: ", &side)) {
+        return 1;
+    }
+
+    cout << "Площадь квадрата: " << side * side << endl;
+
+    return 0;
+}
+\end{lstlisting}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.4\textwidth, height=0.4\textheight, keepaspectratio]{../media/lab2_image1.png}
+    \caption{Пример выполнения программы для задания 1}
+    \label{fig:lab2_image1}
+\end{figure}
+
+\subsubsection*{Подзадание №2:}
+Программа вычисляет объем прямоугольного параллелепипеда по трем сторонам. Реализован ввод и проверка данных. Для вычисления объема используется формула \(V = a \times b \times h\).
+Код программы представлен ниже (Листинг \ref{lst:lab2_point2}, \ref{lst:lab2_point_all_h} и \ref{lst:lab2_point_all_cpp}, Рисунок \ref{fig:lab2_image2}).
+
+\begin{lstlisting}[caption={Код программы для задания 2}, label=lst:lab2_point2]
+#include "point_all.h"
+
+int main() {
+    int side_a, side_b, side_h;
+
+    cout << "Для подсчета объема прямоугольного параллелепипеда введите три стороны: " << endl;
+    
+    if (!read_int("Введите сторону a (длина): ", &side_a) ||
+        !read_int("Введите сторону b (ширина): ", &side_b) ||
+        !read_int("Введите сторону h (высота): ", &side_h)) {
+        return 1;
+    }
+    
+    cout << "Объем прямоугольного параллелепипеда: " << side_a * side_b * side_h << endl;
+
+    return 0;
+}
+\end{lstlisting}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth, height=0.7\textheight, keepaspectratio]{../media/lab2_image2.png}
+    \caption{Пример выполнения программы для задания 2}
+    \label{fig:lab2_image2}
+\end{figure}
+
+\subsubsection*{Подзадание №3:}
+Программа вычисляет пройденное расстояние по скорости и времени. Используется функция для чтения чисел с плавающей точкой. Расстояние вычисляется по формуле \(S = v \times t\).
+Код программы представлен ниже (Листинг \ref{lst:lab2_point3}, \ref{lst:lab2_point_all_h} и \ref{lst:lab2_point_all_cpp}, Рисунок \ref{fig:lab2_image3}).
+
+\begin{lstlisting}[caption={Код программы для задания 3}, label=lst:lab2_point3]
+#include "point_all.h"
+
+int main() {
+    int speed, time;
+
+    cout << "Для подсчета пройденного расстояния введите скорость (в км/час) и время (в часах): " << endl;
+    
+    if (!read_int("Введите скорость (только число): ", &speed) ||
+        !read_int("Введите время (только число): ", &time)) {
+        return 1;
+    }
+    
+    cout << "Пройденное расстояние: " << speed * time << " км" << endl;
+
+    return 0;
+}
+\end{lstlisting}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth, height=0.8\textheight, keepaspectratio]{../media/lab2_image3.png}
+    \caption{Пример выполнения программы для задания 3}
+    \label{fig:lab2_image3}
+\end{figure}
+
+\subsubsection*{Вспомогательные файлы:}
+Для всех программ использован общий заголовочный файл и функция для чтения и проверки положительного числа.
+\textit{(Данная библиотека будет использоваться в последующих лабораторных работах)}
+
+\begin{lstlisting}[caption={Заголовочный файл point\_all.h}, label=lst:lab2_point_all_h]
+#ifndef POINT_ALL_H
+#define POINT_ALL_H
+
+#include <iostream>
+#include <string>
+using namespace std;
+
+// Функция для чтения и проверки положительного числа
+bool read_int(const string& prompt, int* value);
+
+#endif
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Файл реализации point\_all.cpp}, label=lst:lab2_point_all_cpp]
+#include "point_all.h"
+
+bool read_int(const string& prompt, int* value) {
+    string input;
+    cout << prompt;
+    
+    if (!getline(cin, input) || input.empty()) {
+        cout << "Вы не ввели число" << endl;
+        return false;
+    }
+    
+    try {
+        *value = stoi(input);
+        if (*value <= 0) {
+            cout << "Вы ввели некорректное число" << endl;
+            return false;
+        }
+        return true;
+    } catch (...) {
+        cout << "Вы ввели не число" << endl;
+        return false;
+    }
+}
+\end{lstlisting}
+
+\subsection*{Вывод:}
+В ходе работы были изучены принципы разработки программ линейной структуры. Реализованы приложения для вычисления площади, объема и расстояния с использованием функций безопасного ввода. Приобретены навыки работы с базовыми типами данных, вводом-выводом и простыми арифметическими операциями.
+
+\end{document}
